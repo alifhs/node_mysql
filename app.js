@@ -48,6 +48,7 @@ Order.belongsTo(User);
 User.hasMany(Order);
 Order.belongsToMany(Product, {through: OrderItem});
 
+let activeuser;
 sequelize
   // .sync({ force: true }) //means drop every table/overwrite
   .sync()
@@ -62,10 +63,20 @@ sequelize
     return user;
   })
   .then(user => {
+    activeuser = user;
+    
+    return Cart.findOne({ where: {userId: user.id} });
     // console.log(user);
-    return  user.createCart();  //need to check if a user id exist or not on the cart table
+      //need to check if a user id exist or not on the cart table
     
   }). 
+  then(cart => {
+    if(cart)
+    return;
+    else {
+      return  activeuser.createCart();
+    }
+  }).
   then(cart => {
     app.listen(3000);
   })
